@@ -1,27 +1,41 @@
 #!/data/data/com.termux/files/usr/bin/bash
+set -e
 
-echo -e "\n🔧 Setting up your Termux with Parrot OS + Powerlevel10k aesthetics..."
+echo -e "\n🔧 Setting up Termux with ParrotOS-style Zsh + Powerlevel10k..."
 
-# Step 1: Update and install essentials
-pkg update -y && pkg upgrade -y
+pkg update -y
+pkg upgrade -y
 pkg install -y zsh git curl neofetch figlet toilet lolcat wget
 
-# Step 2: Change shell to Zsh
-chsh -s zsh
+# Change shell safely
+chsh -s "$(which zsh)"
 
-# Step 3: Install Oh My Zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# Backup existing configs
+[ -f "$HOME/.zshrc" ] && cp "$HOME/.zshrc" "$HOME/.zshrc.backup.$(date +%s)"
+[ -f "$HOME/.p10k.zsh" ] && cp "$HOME/.p10k.zsh" "$HOME/.p10k.zsh.backup.$(date +%s)"
 
-# Step 4: Install plugins
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-autosuggestions $HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+# Install Oh My Zsh non-interactively
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c \
+  "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 
-# Step 5: Install Powerlevel10k
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $HOME/.oh-my-zsh/custom/themes/powerlevel10k
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
-# Step 6: Configure Neofetch
-mkdir -p ~/.config/neofetch
-cat > ~/.config/neofetch/config.conf << 'EOF'
+# Plugins
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && \
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && \
+git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+
+# Powerlevel10k
+[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ] && \
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+
+# Neofetch config
+mkdir -p "$HOME/.config/neofetch"
+cat > "$HOME/.config/neofetch/config.conf" << 'EOF'
 print_info() {
     info title
     info underline
@@ -37,36 +51,35 @@ image_backend="ascii"
 ascii_distro="parrot"
 EOF
 
-# Step 7: Create .zshrc with Powerlevel10k and Parrot flair
-cat > $HOME/.zshrc << 'EOF'
+# Zsh config
+cat > "$HOME/.zshrc" << 'EOF'
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 plugins=(
   git
-  zsh-syntax-highlighting
   zsh-autosuggestions
+  zsh-syntax-highlighting
 )
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
-# Fancy Parrot banner
-clear
-toilet -f pagga "ParrotOS" | lolcat
-neofetch
+# Show banner once per session
+if [[ -z "$PARROT_BANNER_SHOWN" ]]; then
+  export PARROT_BANNER_SHOWN=1
+  clear
+  toilet -f pagga "ParrotOS" | lolcat
+  neofetch
+fi
 
-# History and shell options
 setopt HIST_IGNORE_ALL_DUPS
 setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
 
-# Source Powerlevel10k config if exists
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+[[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 EOF
 
-# Step 8: Create default Powerlevel10k config if missing
-cat > ~/.p10k.zsh << 'EOF'
-# Basic P10k config - you can customize later via `p10k configure`
+cat > "$HOME/.p10k.zsh" << 'EOF'
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(os_icon dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status command_execution_time time)
 POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
@@ -75,7 +88,5 @@ POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="╰→ "
 POWERLEVEL9K_RIGHT_SEGMENT_SEPARATOR=" | "
 EOF
 
-# Final message
-echo -e "\n✅ Done! You now have a Parrot OS–style Termux with Powerlevel10k."
-echo -e "👉 Restart Termux or type \033[1;32mzsh\033[0m to launch it."
-echo -e "📝 You can run \033[1;36mp10k configure\033[0m to personalize your prompt.\n"
+echo -e "\n✅ Done. Restart Termux or run: zsh"
+echo -e "📝 Later customize with: p10k configure\n"
