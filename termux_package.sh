@@ -12,7 +12,8 @@ pkg upgrade -y
 pkg install x11-repo -y
 
 # Core packages
-pkg install -y zsh python git eza
+pkg install -y zsh python git eza curl wget tmux fdupes neofetch fastfetch bat
+alias cat='bat'
 
 # Plugins
 mkdir -p ~/.zsh
@@ -53,5 +54,4 @@ EOF
 chsh -s "$(which zsh)"
 
 echo
-echo "Done."
-echo "Restart Termux."
+echo -e "\n✅ Done. Restart Termux or run: termux-reload-settings"
