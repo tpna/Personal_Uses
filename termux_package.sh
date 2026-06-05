@@ -9,6 +9,7 @@ termux-setup-storage
 # Update packages
 pkg update -y
 pkg upgrade -y
+pkg install x11-repo -y
 
 # Core packages
 pkg install -y zsh python git eza
