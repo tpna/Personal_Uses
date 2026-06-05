@@ -51,7 +51,7 @@ alias gp='git push'
 EOF
 
 # Make zsh default
-chsh -s "$(which zsh)"
+chsh -s "$zsh"
 
 echo
 echo -e "\n✅ Done. Restart Termux or run: termux-reload-settings"
