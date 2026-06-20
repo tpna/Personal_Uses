@@ -1,6 +1,3 @@
-# Storage access (will prompt for permission)
-# termux-setup-storage
-
 #!/data/data/com.termux/files/usr/bin/bash
 
 set -Eeuo pipefail
@@ -292,3 +289,5 @@ remove_duplicate_leftovers
 echo -e "\n✅ Done."
 echo -e "👉 Restart Termux, or run: \033[1;32mzsh\033[0m"
 echo -e "🗂️ Backups saved at: $BACKUP_DIR\n"
+
+# Storage access (will prompt for permission)    "termux-setup-storage"
