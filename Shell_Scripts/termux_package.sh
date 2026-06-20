@@ -271,9 +271,10 @@ write_zshrc
 # Step 6: Make Zsh default
 # ==============================
 
-ZSH_PATH="$(command -v zsh)"
+ZSH_PATH="$(which zsh)"
+CURRENT_SHELL="$(basename "${SHELL:-}")"
 
-if [ "${SHELL:-}" != "$ZSH_PATH" ]; then
+if [ "$CURRENT_SHELL" != "zsh" ]; then
     log "Changing default shell to Zsh..."
     chsh -s "$ZSH_PATH"
 else
